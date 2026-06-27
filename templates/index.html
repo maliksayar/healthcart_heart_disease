@@ -923,41 +923,41 @@
     <div class="container">
         
         <!-- Results Container (Displayed only if prediction_text is returned from backend) -->
-        {% if prediction_text %}
+        
         <div class="result-container has-result" id="results-panel">
             <div class="result-card {% if 'High' in prediction_text %}high-risk{% else %}low-risk{% endif %}">
                 <div class="result-icon">
-                    {% if 'High' in prediction_text %}
+                   
                     <i class="fa-solid fa-triangle-exclamation"></i>
-                    {% else %}
+                   
                     <i class="fa-solid fa-circle-check"></i>
-                    {% endif %}
+                   
                 </div>
                 <h2 class="result-title">
                     {{ prediction_text }}
                 </h2>
                 <p class="result-desc">
-                    {% if 'High' in prediction_text %}
+                    
                     We detected a heightened risk profile based on your input parameters. We strongly recommend scheduling a comprehensive cardiac checkup and reviewing lifestyle variables.
-                    {% else %}
+                    
                     Your risk profile appears to be low. Continue maintaining a balanced diet, staying active, and participating in regular routine checkups.
-                    {% endif %}
+                   
                 </p>
                 <div class="result-actions">
                     <a href="#predictor-form" class="btn-outline">Recalculate Values</a>
-                    {% if 'High' in prediction_text %}
+                    
                     <a href="https://healthcart.com/telehealth" target="_blank" class="nav-cta" style="box-shadow: 0 0 20px rgba(239, 68, 68, 0.4); background: linear-gradient(135deg, #EF4444, #C53030);">
                         <i class="fa-solid fa-user-doctor"></i> Consult Specialist
                     </a>
-                    {% else %}
+                   
                     <a href="https://healthcart.com/wellness" target="_blank" class="nav-cta">
                         <i class="fa-solid fa-leaf"></i> Wellness Shop
                     </a>
-                    {% endif %}
+                  
                 </div>
             </div>
         </div>
-        {% endif %}
+        
 
         <!-- Form Glassmorphic Card -->
         <div class="glass-card" id="predictor-form">
