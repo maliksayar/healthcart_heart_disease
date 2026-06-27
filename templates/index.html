@@ -922,17 +922,40 @@
 
     <div class="container">
         
-        <!-- Results Container (Shown/hidden by JS after Flask API response) -->
+        <!-- Results Container -->
         <div class="result-container" id="results-panel">
             <div class="result-card" id="result-card">
                 <div class="result-icon" id="result-icon"></div>
-                <h2 class="result-title" id="result-title"></h2>
+                <h2 class="result-title" id="result-title">{{ prediction_text }}</h2>
                 <p class="result-desc" id="result-desc"></p>
                 <div class="result-actions">
                     <a href="#predictor-form" class="btn-outline">Recalculate Values</a>
-                    <button type="button" id="result-action-btn" class="nav-cta" onclick="showComingSoon(this)"></button>
+                    <button type="button" id="action-btn" onclick="showComingSoon()" class="nav-cta" style="border: none; cursor: pointer;"></button>
                 </div>
             </div>
+        </div>
+
+        <!-- Coming Soon Toast -->
+        <div id="coming-soon-toast" style="
+            display: none;
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(17, 31, 53, 0.95);
+            border: 1px solid rgba(0, 201, 167, 0.4);
+            border-radius: 40px;
+            padding: 14px 28px;
+            color: #E2E8F0;
+            font-size: 14px;
+            font-weight: 600;
+            z-index: 9999;
+            backdrop-filter: blur(12px);
+            box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+            gap: 10px;
+            align-items: center;
+        ">
+            <i class="fa-solid fa-clock" style="color: #00C9A7;"></i>&nbsp; This feature is coming soon — stay tuned!
         </div>
 
         <!-- Coming Soon Toast -->
@@ -967,7 +990,7 @@
                 Please supply accurate values below. All fields are required for an accurate risk index.
             </p>
 
-            <form id="heart-form">
+            <form action="/" method="POST" id="heart-form">
 
                 <!-- SECTION 1: Medical History & Risk Factors -->
                 <div class="form-section-title">
@@ -1267,21 +1290,56 @@
 
     <!-- Interactive JS logic -->
     <script>
-        // ── Sticky Navbar ──
+        // Sticky Navbar
         window.addEventListener('scroll', function() {
-            const nav = document.getElementById('main-nav');
-            nav.classList.toggle('scrolled', window.scrollY > 50);
+            document.getElementById('main-nav').classList.toggle('scrolled', window.scrollY > 50);
         });
 
-        // ── BMI Dialog ──
+        // On page load — read prediction_text Flask injected, update UI
+        window.addEventListener('DOMContentLoaded', () => {
+            const titleEl = document.getElementById('result-title');
+            const text = titleEl.textContent.trim();
+
+            if (!text) return; // No prediction yet, panel stays hidden
+
+            const isHigh = text.toLowerCase().includes('high');
+            const card   = document.getElementById('result-card');
+            const icon   = document.getElementById('result-icon');
+            const desc   = document.getElementById('result-desc');
+            const btn    = document.getElementById('action-btn');
+            const panel  = document.getElementById('results-panel');
+
+            card.classList.add(isHigh ? 'high-risk' : 'low-risk');
+
+            icon.innerHTML = isHigh
+                ? '<i class="fa-solid fa-triangle-exclamation"></i>'
+                : '<i class="fa-solid fa-circle-check"></i>';
+
+            desc.textContent = isHigh
+                ? 'We detected a heightened risk profile based on your input parameters. We strongly recommend scheduling a comprehensive cardiac checkup and reviewing lifestyle variables.'
+                : 'Your risk profile appears to be low. Continue maintaining a balanced diet, staying active, and participating in regular routine checkups.';
+
+            if (isHigh) {
+                btn.innerHTML = '<i class="fa-solid fa-user-doctor"></i> Consult Specialist';
+                btn.style.background = 'linear-gradient(135deg, #EF4444, #C53030)';
+                btn.style.boxShadow = '0 0 20px rgba(239, 68, 68, 0.4)';
+            } else {
+                btn.innerHTML = '<i class="fa-solid fa-leaf"></i> Wellness Shop';
+                btn.style.background = 'linear-gradient(135deg, #00C9A7, #009B82)';
+                btn.style.boxShadow = '0 0 20px rgba(0, 201, 167, 0.25)';
+            }
+
+            panel.classList.add('has-result');
+            panel.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        });
+
+        // BMI Dialog
         function openBmiDialog() {
             document.getElementById('bmi-dialog').classList.add('open');
         }
-
         function closeBmiDialog() {
             document.getElementById('bmi-dialog').classList.remove('open');
         }
-
         function calculateBmi() {
             const height = parseFloat(document.getElementById('bmi_height').value);
             const weight = parseFloat(document.getElementById('bmi_weight').value);
@@ -1289,85 +1347,16 @@
                 alert('Please enter valid height and weight values.');
                 return;
             }
-            const bmi = weight / Math.pow(height / 100, 2);
-            document.getElementById('BMI').value = bmi.toFixed(1);
+            document.getElementById('BMI').value = (weight / Math.pow(height / 100, 2)).toFixed(1);
             closeBmiDialog();
         }
 
-        // ── Coming Soon Toast ──
-        function showComingSoon(btn) {
+        // Coming Soon Toast
+        function showComingSoon() {
             const toast = document.getElementById('coming-soon-toast');
             toast.style.display = 'flex';
             setTimeout(() => { toast.style.display = 'none'; }, 3000);
         }
-
-        // ── Show Result Panel ──
-        function showResult(predictionText) {
-            const isHighRisk = predictionText.toLowerCase().includes('high');
-
-            const panel    = document.getElementById('results-panel');
-            const card     = document.getElementById('result-card');
-            const icon     = document.getElementById('result-icon');
-            const title    = document.getElementById('result-title');
-            const desc     = document.getElementById('result-desc');
-            const actionBtn = document.getElementById('result-action-btn');
-
-            // Reset classes
-            card.classList.remove('high-risk', 'low-risk');
-
-            if (isHighRisk) {
-                card.classList.add('high-risk');
-                icon.innerHTML = '<i class="fa-solid fa-triangle-exclamation"></i>';
-                title.textContent = predictionText;
-                desc.textContent = 'We detected a heightened risk profile based on your input parameters. We strongly recommend scheduling a comprehensive cardiac checkup and reviewing lifestyle variables.';
-                actionBtn.innerHTML = '<i class="fa-solid fa-user-doctor"></i> Consult Specialist';
-                actionBtn.style.background = 'linear-gradient(135deg, #EF4444, #C53030)';
-                actionBtn.style.boxShadow = '0 0 20px rgba(239, 68, 68, 0.4)';
-            } else {
-                card.classList.add('low-risk');
-                icon.innerHTML = '<i class="fa-solid fa-circle-check"></i>';
-                title.textContent = predictionText;
-                desc.textContent = 'Your risk profile appears to be low. Continue maintaining a balanced diet, staying active, and participating in regular routine checkups.';
-                actionBtn.innerHTML = '<i class="fa-solid fa-leaf"></i> Wellness Shop';
-                actionBtn.style.background = 'linear-gradient(135deg, #00C9A7, #009B82)';
-                actionBtn.style.boxShadow = '0 0 20px rgba(0, 201, 167, 0.25)';
-            }
-
-            panel.classList.add('has-result');
-            panel.scrollIntoView({ behavior: 'smooth', block: 'center' });
-        }
-
-        // ── Form Submit → Fetch Flask API ──
-        document.getElementById('heart-form').addEventListener('submit', async function(e) {
-            e.preventDefault();
-
-            const submitBtn = this.querySelector('.btn-primary');
-            const originalHTML = submitBtn.innerHTML;
-            submitBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Analyzing...';
-            submitBtn.disabled = true;
-
-            const formData = new FormData(this);
-
-            try {
-                const response = await fetch('/', {
-                    method: 'POST',
-                    body: formData
-                });
-
-                if (!response.ok) throw new Error('Server error: ' + response.status);
-
-                const data = await response.json();
-                // Flask should return: { "prediction": "High Risk" } or { "prediction": "Low Risk" }
-                showResult(data.prediction);
-
-            } catch (err) {
-                console.error(err);
-                alert('Something went wrong. Please check your Flask API is running and returning JSON.');
-            } finally {
-                submitBtn.innerHTML = originalHTML;
-                submitBtn.disabled = false;
-            }
-        });
     </script>
 </body>
 </html>
