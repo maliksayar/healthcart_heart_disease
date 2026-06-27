@@ -1303,28 +1303,37 @@
             document.getElementById('main-nav').classList.toggle('scrolled', window.scrollY > 50);
         });
 
-        // On page load — read prediction_text from hidden span (exactly like working example)
+        // On page load — read prediction_text from hidden span
         document.addEventListener('DOMContentLoaded', function() {
             const predictionEl = document.getElementById('prediction-result');
             if (!predictionEl) return;
 
-            const prediction = predictionEl.textContent.trim();
-            if (!prediction) return; // No prediction yet, cards stay hidden
+            const raw = predictionEl.textContent.trim();
+            const predictionValue = raw.replace(/[\[\]\s]/g, ''); // remove brackets & spaces e.g. [1] → 1
+
+            console.log('Raw prediction from Flask:', raw);
+            console.log('Cleaned prediction value:', predictionValue);
+
+            if (!predictionValue) {
+                console.log('No prediction yet — form not submitted.');
+                return;
+            }
 
             const panel        = document.getElementById('results-panel');
             const highRiskCard = document.getElementById('high-risk-card');
             const lowRiskCard  = document.getElementById('low-risk-card');
 
-            if (prediction === '1') {
-                document.getElementById('result-title-high').textContent = prediction;
+            if (predictionValue === '1') {
+                console.log('Showing HIGH RISK card');
                 highRiskCard.style.display = 'block';
                 lowRiskCard.style.display  = 'none';
-            } else if (prediction === '0') {
-                document.getElementById('result-title-low').textContent = prediction;
+            } else if (predictionValue === '0') {
+                console.log('Showing LOW RISK card');
                 highRiskCard.style.display = 'none';
                 lowRiskCard.style.display  = 'block';
             } else {
-                return; // Invalid prediction, show nothing
+                console.log('Unrecognized prediction value — nothing shown:', predictionValue);
+                return;
             }
 
             panel.classList.add('has-result');
