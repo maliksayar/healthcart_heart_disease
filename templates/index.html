@@ -920,66 +920,19 @@
         </div>
     </section>
 
-    <div class="container">
+  
         
         <!-- Hidden span holds Flask prediction value — JS reads this -->
-        <span id="prediction-result" style="display:none;">{{ prediction_text }}</span>
+        <h1>{{ prediction_text }}</h1>
 
-        <!-- Results Container — shown by JS if prediction exists -->
-        <div class="result-container" id="results-panel">
-
-            <!-- High Risk Card -->
-            <div id="high-risk-card" class="result-card high-risk" style="display:none;">
-                <div class="result-icon"><i class="fa-solid fa-triangle-exclamation"></i></div>
-                <h2 class="result-title" id="result-title-high"></h2>
-                <p class="result-desc">We detected a heightened risk profile based on your input parameters. We strongly recommend scheduling a comprehensive cardiac checkup and reviewing lifestyle variables.</p>
-                <div class="result-actions">
-                    <a href="#predictor-form" class="btn-outline">Recalculate Values</a>
-                    <button type="button" onclick="showComingSoon()" class="nav-cta" style="border:none; cursor:pointer; background:linear-gradient(135deg,#EF4444,#C53030); box-shadow:0 0 20px rgba(239,68,68,0.4);">
-                        <i class="fa-solid fa-user-doctor"></i> Consult Specialist
-                    </button>
-                </div>
-            </div>
-
-            <!-- Low Risk Card -->
-            <div id="low-risk-card" class="result-card low-risk" style="display:none;">
-                <div class="result-icon"><i class="fa-solid fa-circle-check"></i></div>
-                <h2 class="result-title" id="result-title-low"></h2>
-                <p class="result-desc">Your risk profile appears to be low. Continue maintaining a balanced diet, staying active, and participating in regular routine checkups.</p>
-                <div class="result-actions">
-                    <a href="#predictor-form" class="btn-outline">Recalculate Values</a>
-                    <button type="button" onclick="showComingSoon()" class="nav-cta" style="border:none; cursor:pointer;">
-                        <i class="fa-solid fa-leaf"></i> Wellness Shop
-                    </button>
-                </div>
-            </div>
-
-        </div>
-
+        
         <!-- Coming Soon Toast -->
-        <div id="coming-soon-toast" style="
-            display:none; position:fixed; bottom:30px; left:50%;
-            transform:translateX(-50%);
-            background:rgba(17,31,53,0.95);
-            border:1px solid rgba(0,201,167,0.4);
-            border-radius:40px; padding:14px 28px;
-            color:#E2E8F0; font-size:14px; font-weight:600;
-            z-index:9999; backdrop-filter:blur(12px);
-            box-shadow:0 8px 32px rgba(0,0,0,0.4);
-            gap:10px; align-items:center;">
-            <i class="fa-solid fa-clock" style="color:#00C9A7;"></i>&nbsp; This feature is coming soon — stay tuned!
-        </div>
+       
 
         <!-- Form Glassmorphic Card -->
-        <div class="glass-card" id="predictor-form">
-            <h2 style="font-size: 26px; font-weight: 800; color: #FFFFFF; margin-bottom: 8px; display: flex; align-items: center; gap: 10px;">
-                <i class="fa-solid fa-clipboard-list" style="color: var(--hc-teal);"></i> Cardiovascular Assessment Form
-            </h2>
-            <p style="color: var(--hc-muted); font-size: 14px; margin-bottom: 30px;">
-                Please supply accurate values below. All fields are required for an accurate risk index.
-            </p>
+        
 
-            <form action="/" method="POST" id="heart-form">
+            <form action="#" method="POST" id="heart-form">
 
                 <!-- SECTION 1: Medical History & Risk Factors -->
                 <div class="form-section-title">
