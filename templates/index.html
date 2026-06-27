@@ -1182,9 +1182,28 @@
                     </div>
                 </div>
 
-                <button type="submit" class="btn-primary">
-                    <i class="fa-solid fa-brain"></i> Compute Risk Index
-                </button>
+                <div style="display:flex; gap:12px; margin-top:25px;">
+                    <button type="button" onclick="loadExample()" style="
+                        flex: 0 0 auto;
+                        background: rgba(0,201,167,0.1);
+                        border: 2px solid rgba(0,201,167,0.4);
+                        border-radius: var(--hc-radius-xl);
+                        color: var(--hc-teal);
+                        font-weight: 700;
+                        font-size: 14px;
+                        padding: 14px 24px;
+                        cursor: pointer;
+                        transition: all 0.3s ease;
+                        display: flex;
+                        align-items: center;
+                        gap: 8px;
+                    " onmouseover="this.style.background='rgba(0,201,167,0.2)'" onmouseout="this.style.background='rgba(0,201,167,0.1)'">
+                        <i class="fa-solid fa-flask"></i> Load Example
+                    </button>
+                    <button type="submit" class="btn-primary" style="margin-top:0; flex:1;">
+                        <i class="fa-solid fa-brain"></i> Compute Risk Index
+                    </button>
+                </div>
             </form>
         </div>
     </div>
@@ -1312,7 +1331,44 @@
             panel.scrollIntoView({ behavior: 'smooth', block: 'center' });
         });
 
-        // BMI Dialog
+        // Load Example Data
+        function loadExample() {
+            document.getElementById('HighBP').value          = '1';
+            document.getElementById('HighChol').value        = '1';
+            document.getElementById('CholCheck').value       = '1';
+            document.getElementById('BMI').value             = '28.5';
+            document.getElementById('Smoker').value          = '0';
+            document.getElementById('Stroke').value          = '0';
+            document.getElementById('Diabetes').value        = '1';
+            document.getElementById('PhysActivity').value    = '1';
+            document.getElementById('Fruits').value          = '1';
+            document.getElementById('Veggies').value         = '1';
+            document.getElementById('HvyAlcoholConsump').value = '0';
+            document.getElementById('AnyHealthcare').value   = '1';
+            document.getElementById('NoDocbcCost').value     = '0';
+            document.getElementById('GenHlth').value         = '3';
+            document.getElementById('MentHlth').value        = '5';
+            document.getElementById('PhysHlth').value        = '3';
+            document.getElementById('DiffWalk').value        = '0';
+            document.getElementById('Sex').value             = '1';
+            document.getElementById('Age').value             = '52';
+
+            // Flash the button to confirm
+            const btn = event.target.closest('button');
+            const orig = btn.innerHTML;
+            btn.innerHTML = '<i class="fa-solid fa-check"></i> Loaded!';
+            btn.style.background = 'rgba(16,185,129,0.15)';
+            btn.style.borderColor = '#10B981';
+            btn.style.color = '#10B981';
+            setTimeout(() => {
+                btn.innerHTML = orig;
+                btn.style.background = 'rgba(0,201,167,0.1)';
+                btn.style.borderColor = 'rgba(0,201,167,0.4)';
+                btn.style.color = 'var(--hc-teal)';
+            }, 1500);
+        }
+
+
         function openBmiDialog() {
             document.getElementById('bmi-dialog').classList.add('open');
         }
