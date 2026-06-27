@@ -1,0 +1,1314 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HealthCart AI — Heart Disease Risk Predictor</title>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <!-- FontAwesome for Icons -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        /* ── 1. Color Palette (CSS Variables) ── */
+        :root {
+            /* Backgrounds */
+            --hc-dark:    #050F1A;   /* Deepest page background */
+            --hc-navy:    #0B1629;   /* Cards, sections */
+            --hc-surface: #111F35;   /* Elevated panels, inputs on focus */
+
+            /* Brand / Accent */
+            --hc-teal:    #00C9A7;   /* PRIMARY — buttons, icons, links, borders */
+            --hc-teal-d:  #009B82;   /* Hover/dark variant of teal */
+            --hc-blue:    #3B82F6;   /* Info badges, AI feature highlights */
+            --hc-amber:   #F59E0B;   /* Warnings, discount chips, star ratings */
+
+            /* Text */
+            --hc-white:   #FFFFFF;   /* Headings, strong labels */
+            --hc-text:    #E2E8F0;   /* Body text, paragraphs */
+            --hc-muted:   #8E9FB8;   /* Secondary text, descriptions, placeholders */
+
+            /* Borders */
+            --hc-border:  rgba(0, 201, 167, 0.15);  /* Teal-tinted subtle borders */
+
+            /* Semantic status colors */
+            --hc-success: #10B981;   /* In stock, success badge */
+            --hc-danger:  #EF4444;   /* Out of stock, error */
+            --hc-footer-bg: #040A12; /* Footer background */
+            --hc-footer-bottom: #02060B; /* Footer bottom bar */
+
+            /* Spacing & Border Radius */
+            --hc-radius-sm:  8px;
+            --hc-radius-md:  16px;
+            --hc-radius-lg:  24px;
+            --hc-radius-xl:  40px;
+
+            /* Shadows */
+            --hc-shadow-sm:   0 2px 8px rgba(0, 0, 0, 0.2);
+            --hc-shadow-md:   0 8px 24px rgba(0, 0, 0, 0.3);
+            --hc-shadow-lg:   0 16px 48px rgba(0, 0, 0, 0.4);
+            --hc-shadow-teal: 0 0 20px rgba(0, 201, 167, 0.25);
+        }
+
+        /* ── 5. Page Body ── */
+        *, *::before, *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        html, body {
+            max-width: 100%;
+            overflow-x: hidden;
+        }
+
+        body {
+            background-color: var(--hc-dark);
+            background-image: linear-gradient(135deg, #050F1A 0%, #0B1629 100%);
+            color: var(--hc-text);
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+            line-height: 1.6;
+        }
+
+        /* ── 15. Custom Scrollbar ── */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #050F1A;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #0B1629;
+            border: 2px solid #050F1A;
+            border-radius: 8px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #00C9A7;
+        }
+
+        /* Container helper */
+        .container {
+            max-width: 1200px;
+            width: 100%;
+            margin: 0 auto;
+            padding: 0 20px;
+            position: relative;
+        }
+
+        /* ── 6. Navbar ── */
+        navbar {
+            background: rgba(11, 22, 41, 0.80);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border-bottom: 1px solid rgba(0, 201, 167, 0.15);
+            padding: 20px 0;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+            transition: all 0.3s ease;
+        }
+
+        navbar.scrolled {
+            background: rgba(5, 15, 26, 0.95);
+            padding: 12px 0;
+            box-shadow: var(--hc-shadow-md);
+        }
+
+        .navbar-content {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .brand {
+            font-size: 22px;
+            font-weight: 900;
+            background: linear-gradient(135deg, #00C9A7, #00FFCC);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            letter-spacing: -0.5px;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-shrink: 0;
+        }
+
+        .brand i {
+            -webkit-text-fill-color: initial;
+            color: #00C9A7;
+        }
+
+        .nav-links {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            flex-wrap: wrap;
+        }
+
+        .nav-link {
+            color: var(--hc-text);
+            font-size: 13px;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            padding: 10px 15px;
+            text-decoration: none;
+            transition: color 0.3s ease;
+            position: relative;
+        }
+
+        .nav-link:hover {
+            color: var(--hc-teal);
+        }
+
+        .nav-link::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 15px;
+            right: 15px;
+            height: 2px;
+            background: var(--hc-teal);
+            transform: scaleX(0);
+            transition: transform 0.3s ease;
+        }
+
+        .nav-link:hover::after {
+            transform: scaleX(1);
+        }
+
+        .nav-cta {
+            background: linear-gradient(135deg, #00C9A7, #009B82);
+            border-radius: var(--hc-radius-xl);
+            padding: 10px 24px;
+            color: var(--hc-white);
+            font-weight: 700;
+            font-size: 13px;
+            text-decoration: none;
+            box-shadow: var(--hc-shadow-teal);
+            transition: all 0.3s ease;
+        }
+
+        .nav-cta:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0, 201, 167, 0.4);
+        }
+
+        /* ── Hero Section ── */
+        .hero {
+            padding: 140px 0 80px;
+            background: linear-gradient(180deg, #050F1A 0%, #0B1629 100%);
+            position: relative;
+            text-align: center;
+            overflow: hidden;
+        }
+
+        .hero-glow {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: min(600px, 100vw);
+            height: min(600px, 100vw);
+            background: radial-gradient(circle, rgba(0, 201, 167, 0.08) 0%, transparent 70%);
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        .hero-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            margin-bottom: 20px;
+            position: relative;
+            z-index: 2;
+        }
+
+        .hero h1 {
+            font-size: 3.5rem;
+            font-weight: 900;
+            color: var(--hc-white);
+            line-height: 1.2;
+            letter-spacing: -1px;
+            margin-bottom: 20px;
+            position: relative;
+            z-index: 2;
+        }
+
+        .hero h1 span {
+            background: linear-gradient(135deg, #00C9A7, #00FFCC);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .hero p {
+            max-width: 600px;
+            margin: 0 auto 35px;
+            font-size: 16px;
+            color: var(--hc-muted);
+            position: relative;
+            z-index: 2;
+        }
+
+        /* ── 12. Stats / Counter Row ── */
+        .stats-row {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 20px;
+            max-width: 960px;
+            margin: 0 auto 40px;
+            position: relative;
+            z-index: 2;
+        }
+
+        .stat-card {
+            background: rgba(17, 31, 53, 0.4);
+            border: 1px solid var(--hc-border);
+            border-radius: var(--hc-radius-md);
+            padding: 20px;
+            backdrop-filter: blur(8px);
+        }
+
+        .stat-number {
+            font-size: 36px;
+            font-weight: 800;
+            color: var(--hc-teal);
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            font-size: 12px;
+            color: var(--hc-muted);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        /* ── Results Panel (Anchor target or top element) ── */
+        .result-container {
+            max-width: 900px;
+            margin: 0 auto 40px;
+            display: none; /* Controlled by Jinja or CSS if prediction text exists */
+        }
+
+        .result-container.has-result {
+            display: block;
+            animation: fadeInUp 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .result-card {
+            background: rgba(17, 31, 53, 0.8);
+            border-radius: var(--hc-radius-lg);
+            padding: 35px;
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .result-card.high-risk {
+            border: 2px solid var(--hc-danger);
+            box-shadow: 0 0 30px rgba(239, 68, 68, 0.25);
+        }
+
+        .result-card.low-risk {
+            border: 2px solid var(--hc-success);
+            box-shadow: 0 0 30px rgba(16, 185, 129, 0.25);
+        }
+
+        .result-icon {
+            font-size: 48px;
+            margin-bottom: 15px;
+        }
+
+        .high-risk .result-icon { color: var(--hc-danger); }
+        .low-risk .result-icon { color: var(--hc-success); }
+
+        .result-title {
+            font-size: 24px;
+            font-weight: 800;
+            color: var(--hc-white);
+            margin-bottom: 10px;
+        }
+
+        .result-desc {
+            font-size: 14px;
+            color: var(--hc-text);
+            max-width: 600px;
+            margin: 0 auto 20px;
+        }
+
+        .result-actions {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+        }
+
+        /* ── 9. Glassmorphic Cards ── */
+        .glass-card {
+            background: rgba(17, 31, 53, 0.65);
+            border: 1px solid var(--hc-border);
+            border-radius: var(--hc-radius-lg);
+            box-shadow: var(--hc-shadow-md);
+            padding: 40px;
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+            max-width: 900px;
+            margin: 0 auto 80px;
+        }
+
+        .glass-card:hover {
+            border-color: rgba(0, 201, 167, 0.4);
+            box-shadow: var(--hc-shadow-lg), var(--hc-shadow-teal);
+        }
+
+        .glass-card::before {
+            content: '';
+            position: absolute;
+            width: 300px;
+            height: 300px;
+            background: radial-gradient(circle, rgba(0, 201, 167, 0.10) 0%, transparent 70%);
+            top: -100px;
+            right: -100px;
+            pointer-events: none;
+        }
+
+        .form-section-title {
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--hc-white);
+            margin: 30px 0 15px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .form-section-title:first-of-type {
+            margin-top: 0;
+        }
+
+        .form-section-title i {
+            color: var(--hc-teal);
+        }
+
+        /* Form Grid Layout */
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .form-group.full-width {
+            grid-column: span 2;
+        }
+
+        label {
+            font-weight: 600;
+            font-size: 13px;
+            color: var(--hc-text);
+            letter-spacing: 0.3px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        label .label-tip {
+            font-size: 11px;
+            color: var(--hc-muted);
+            font-weight: 400;
+        }
+
+        /* ── 8. Form Inputs ── */
+        input, select {
+            background: var(--hc-navy);
+            border: 2px solid rgba(0, 201, 167, 0.15);
+            border-radius: var(--hc-radius-md);
+            color: var(--hc-white);
+            padding: 12px 18px;
+            font-family: 'Inter', sans-serif;
+            font-size: 14px;
+            transition: all 0.3s ease;
+            width: 100%;
+        }
+
+        input:focus, select:focus {
+            border-color: var(--hc-teal);
+            box-shadow: var(--hc-shadow-teal);
+            background: var(--hc-surface);
+            outline: none;
+        }
+
+        input::placeholder {
+            color: var(--hc-muted);
+        }
+
+        /* Select custom arrow stylings styling support */
+        select {
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%238E9FB8' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 18px center;
+            background-size: 16px;
+            padding-right: 45px;
+        }
+
+        /* BMI Calculator Button */
+        .bmi-btn {
+            background: rgba(0, 201, 167, 0.1);
+            border: 1px solid rgba(0, 201, 167, 0.3);
+            border-radius: var(--hc-radius-sm);
+            color: var(--hc-teal);
+            font-size: 12px;
+            font-weight: 700;
+            padding: 7px 14px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            width: auto;
+            margin-top: 4px;
+            align-self: flex-start;
+        }
+
+        .bmi-btn:hover {
+            background: var(--hc-teal);
+            color: var(--hc-white);
+        }
+
+        /* BMI Dialog */
+        .bmi-dialog {
+            display: none;
+            background: var(--hc-navy);
+            border: 1px solid rgba(0, 201, 167, 0.3);
+            border-radius: var(--hc-radius-md);
+            padding: 24px;
+            margin-top: 15px;
+            position: relative;
+            animation: fadeInUp 0.3s ease;
+        }
+
+        .bmi-dialog.open {
+            display: block;
+        }
+
+        .bmi-dialog h3 {
+            font-size: 15px;
+            font-weight: 700;
+            color: var(--hc-white);
+            margin-bottom: 15px;
+        }
+
+        .close-btn {
+            position: absolute;
+            top: 12px;
+            right: 14px;
+            background: none;
+            border: none;
+            color: var(--hc-muted);
+            font-size: 20px;
+            cursor: pointer;
+            line-height: 1;
+            padding: 0;
+            width: auto;
+        }
+
+        .close-btn:hover {
+            color: var(--hc-white);
+        }
+
+        .calc-btn {
+            background: linear-gradient(135deg, #00C9A7, #009B82);
+            border: none;
+            border-radius: var(--hc-radius-xl);
+            color: var(--hc-white);
+            font-weight: 700;
+            font-size: 13px;
+            padding: 10px 24px;
+            cursor: pointer;
+            margin-top: 10px;
+            transition: all 0.3s ease;
+            width: auto;
+        }
+
+        .calc-btn:hover {
+            box-shadow: var(--hc-shadow-teal);
+            transform: translateY(-1px);
+        }
+
+        /* ── 7. Buttons ── */
+        .btn-primary {
+            background: linear-gradient(135deg, #00C9A7, #009B82);
+            border: none;
+            border-radius: var(--hc-radius-xl);
+            color: var(--hc-white);
+            font-weight: 700;
+            font-size: 15px;
+            letter-spacing: 0.5px;
+            padding: 14px 35px;
+            box-shadow: var(--hc-shadow-teal);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            cursor: pointer;
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 25px;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0, 201, 167, 0.4);
+        }
+
+        .btn-outline {
+            border: 2px solid var(--hc-teal);
+            background: transparent;
+            color: var(--hc-teal);
+            border-radius: var(--hc-radius-xl);
+            font-weight: 700;
+            padding: 10px 24px;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 13px;
+        }
+
+        .btn-outline:hover {
+            background: var(--hc-teal);
+            color: var(--hc-white);
+            box-shadow: var(--hc-shadow-teal);
+        }
+
+        /* ── 10. Badges / Status Chips ── */
+        .badge-brand {
+            background: rgba(0, 201, 167, 0.1);
+            color: var(--hc-teal);
+            border: 1px solid rgba(0, 201, 167, 0.25);
+            border-radius: 20px;
+            padding: 6px 14px;
+            font-size: 12px;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+        }
+
+        .badge-success {
+            background: rgba(16, 185, 129, 0.1);
+            color: var(--hc-success);
+            border: 1px solid rgba(16, 185, 129, 0.3);
+            border-radius: 20px;
+            padding: 4px 12px;
+            font-size: 11px;
+            font-weight: 700;
+        }
+
+        .badge-warning {
+            background: rgba(245, 158, 11, 0.1);
+            color: var(--hc-amber);
+            border: 1px solid rgba(245, 158, 11, 0.3);
+            border-radius: 20px;
+            padding: 4px 12px;
+            font-size: 11px;
+            font-weight: 700;
+        }
+
+        .badge-danger {
+            background: rgba(239, 68, 68, 0.1);
+            color: var(--hc-danger);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            border-radius: 20px;
+            padding: 4px 12px;
+            font-size: 11px;
+            font-weight: 700;
+        }
+
+        .badge-info {
+            background: rgba(59, 130, 246, 0.15);
+            color: var(--hc-blue);
+            border-radius: 4px;
+            padding: 3px 10px;
+            font-size: 10px;
+            font-weight: 700;
+            text-transform: uppercase;
+        }
+
+        /* ── 13. AI Feature Card ── */
+        .ai-features-section {
+            padding: 40px 0 80px;
+            position: relative;
+        }
+
+        .ai-features-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 25px;
+            margin-top: 40px;
+        }
+
+        .ai-card {
+            background: linear-gradient(135deg, rgba(17,31,53,0.9) 0%, rgba(11,22,41,0.9) 100%);
+            border: 1px solid rgba(0, 201, 167, 0.15);
+            border-radius: var(--hc-radius-lg);
+            padding: 40px;
+            text-align: center;
+            box-shadow: var(--hc-shadow-md);
+            transition: all 0.3s ease;
+        }
+
+        .ai-card:hover {
+            transform: translateY(-5px);
+            border-color: var(--hc-teal);
+            box-shadow: var(--hc-shadow-lg), var(--hc-shadow-teal);
+        }
+
+        .ai-icon {
+            width: 70px;
+            height: 70px;
+            background: rgba(0, 201, 167, 0.1);
+            border-radius: var(--hc-radius-md);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 32px;
+            color: var(--hc-teal);
+            margin: 0 auto 25px;
+            border: 1px solid rgba(0, 201, 167, 0.2);
+        }
+
+        .ai-card h3 {
+            font-size: 18px;
+            color: var(--hc-white);
+            margin-bottom: 12px;
+            font-weight: 700;
+        }
+
+        .ai-card p {
+            font-size: 13px;
+            color: var(--hc-muted);
+        }
+
+        /* ── 14. Footer ── */
+        footer {
+            background-color: #040A12;
+            color: var(--hc-text);
+            padding-top: 80px;
+            border-top: 1px solid rgba(0, 201, 167, 0.15);
+        }
+
+        .footer-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr 1.5fr;
+            gap: 40px;
+        }
+
+        .footer-col {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .footer-about p {
+            font-size: 13px;
+            color: var(--hc-muted);
+            line-height: 1.6;
+        }
+
+        .footer-heading {
+            font-size: 16px;
+            font-weight: 700;
+            color: var(--hc-white);
+            margin-bottom: 25px;
+            padding-bottom: 10px;
+            position: relative;
+        }
+
+        .footer-heading::after {
+            content: '';
+            position: absolute;
+            left: 0;
+            bottom: 0;
+            width: 30px;
+            height: 2px;
+            background: var(--hc-teal);
+        }
+
+        .footer-links {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .footer-link {
+            color: var(--hc-muted);
+            font-size: 13px;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            display: inline-block;
+        }
+
+        .footer-link:hover {
+            color: var(--hc-teal);
+            padding-left: 5px;
+        }
+
+        .social-row {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .social-btn {
+            width: 40px;
+            height: 40px;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 50%;
+            color: var(--hc-text);
+            font-size: 16px;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-decoration: none;
+        }
+
+        .social-btn:hover {
+            background: var(--hc-teal);
+            color: var(--hc-white);
+            border-color: var(--hc-teal);
+            transform: translateY(-3px);
+        }
+
+        .footer-bottom {
+            background: #02060B;
+            padding: 25px 0;
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+            margin-top: 60px;
+            text-align: center;
+        }
+
+        .footer-bottom p {
+            font-size: 12px;
+            color: var(--hc-muted);
+        }
+
+        /* ── 16. Responsive Breakpoints ── */
+
+        /* Tablet landscape */
+        @media (max-width: 991.98px) {
+            .hero h1 { font-size: 2.8rem; }
+            .ai-features-grid { grid-template-columns: 1fr 1fr; }
+            .footer-grid { grid-template-columns: repeat(2, 1fr); }
+            .stats-row { grid-template-columns: repeat(2, 1fr); }
+            navbar { background: rgba(11, 22, 41, 0.98); }
+        }
+
+        /* Tablet portrait & large phones */
+        @media (max-width: 767.98px) {
+            .hero { padding: 160px 0 60px; }
+            .hero h1 { font-size: 2.2rem; letter-spacing: -0.5px; }
+            .hero p { font-size: 14px; padding: 0 10px; }
+            .form-grid { grid-template-columns: 1fr; }
+            .form-group.full-width { grid-column: span 1; }
+            .stats-row { grid-template-columns: repeat(2, 1fr); }
+            .glass-card { padding: 20px 16px; }
+            .ai-features-grid { grid-template-columns: 1fr; }
+            .container { padding: 0 16px; }
+            .nav-link { padding: 8px 10px; font-size: 12px; }
+            .brand { font-size: 20px; }
+        }
+
+        /* Small phones */
+        @media (max-width: 480px) {
+            .hero { padding: 150px 0 50px; }
+            .hero h1 { font-size: 1.9rem; }
+            .hero p { font-size: 13px; }
+            .stats-row { grid-template-columns: repeat(2, 1fr); gap: 12px; }
+            .stat-number { font-size: 26px; }
+            .stat-label { font-size: 10px; }
+            .stat-card { padding: 14px 10px; }
+            .glass-card { padding: 18px 14px; border-radius: 16px; }
+            .form-section-title { font-size: 16px; }
+            .btn-primary { font-size: 14px; padding: 12px 20px; }
+            .btn-outline { width: 100%; text-align: center; }
+            .result-actions { flex-direction: column; align-items: center; }
+            .footer-grid { grid-template-columns: 1fr 1fr; }
+            navbar { padding: 12px 0; }
+        }
+
+        /* Very small phones */
+        @media (max-width: 380px) {
+            .hero h1 { font-size: 1.65rem; }
+            .stats-row { grid-template-columns: 1fr 1fr; gap: 8px; }
+            .footer-grid { grid-template-columns: 1fr; }
+            .nav-link { padding: 6px 8px; font-size: 11px; }
+            .brand { font-size: 18px; }
+        }
+
+        /* Animation Keyframes */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Navbar -->
+    <navbar id="main-nav">
+        <div class="container navbar-content">
+            <a href="/" class="brand">
+                HealthCart</span> <span style="font-size:12px; font-weight:700; background:rgba(0,201,167,0.1); color:#00C9A7; border:1px solid rgba(0,201,167,0.2); border-radius:12px; padding:2px 8px; margin-left:5px;">AI</span>
+            </a>
+            <div class="nav-links">
+                <a href="#predictor-form" class="nav-link">Risk Predictor</a>
+                <a href="#features" class="nav-link">AI Features</a>
+            </div>
+        </div>
+    </navbar>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="hero-glow"></div>
+        <div class="container">
+            <div class="hero-badge">
+                <span class="badge-brand"><i class="fa-solid fa-wand-magic-sparkles"></i> Advanced Diagnostics</span>
+            </div>
+            <h1>Predict Your Heart Health with <span>Precision AI</span></h1>
+            <p>Our machine learning bagging classifier analyzes cardiovascular indicators, patient habit metrics, and vital statistics to determine risk levels instantly.</p>
+            
+            <!-- Stats Counters Row -->
+            <div class="stats-row">
+                <div class="stat-card">
+                    <div class="stat-number">91.89%</div>
+                    <div class="stat-label">Accuracy</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">84.44%</div>
+                    <div class="stat-label">Precision</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">91.89%</div>
+                    <div class="stat-label">Recall</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">88.01%</div>
+                    <div class="stat-label">F1 Score</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <div class="container">
+        
+        <!-- Results Container (Displayed only if prediction_text is returned from backend) -->
+        {% if prediction_text %}
+        <div class="result-container has-result" id="results-panel">
+            <div class="result-card {% if 'High' in prediction_text %}high-risk{% else %}low-risk{% endif %}">
+                <div class="result-icon">
+                    {% if 'High' in prediction_text %}
+                    <i class="fa-solid fa-triangle-exclamation"></i>
+                    {% else %}
+                    <i class="fa-solid fa-circle-check"></i>
+                    {% endif %}
+                </div>
+                <h2 class="result-title">
+                    {{ prediction_text }}
+                </h2>
+                <p class="result-desc">
+                    {% if 'High' in prediction_text %}
+                    We detected a heightened risk profile based on your input parameters. We strongly recommend scheduling a comprehensive cardiac checkup and reviewing lifestyle variables.
+                    {% else %}
+                    Your risk profile appears to be low. Continue maintaining a balanced diet, staying active, and participating in regular routine checkups.
+                    {% endif %}
+                </p>
+                <div class="result-actions">
+                    <a href="#predictor-form" class="btn-outline">Recalculate Values</a>
+                    {% if 'High' in prediction_text %}
+                    <a href="https://healthcart.com/telehealth" target="_blank" class="nav-cta" style="box-shadow: 0 0 20px rgba(239, 68, 68, 0.4); background: linear-gradient(135deg, #EF4444, #C53030);">
+                        <i class="fa-solid fa-user-doctor"></i> Consult Specialist
+                    </a>
+                    {% else %}
+                    <a href="https://healthcart.com/wellness" target="_blank" class="nav-cta">
+                        <i class="fa-solid fa-leaf"></i> Wellness Shop
+                    </a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Form Glassmorphic Card -->
+        <div class="glass-card" id="predictor-form">
+            <h2 style="font-size: 26px; font-weight: 800; color: #FFFFFF; margin-bottom: 8px; display: flex; align-items: center; gap: 10px;">
+                <i class="fa-solid fa-clipboard-list" style="color: var(--hc-teal);"></i> Cardiovascular Assessment Form
+            </h2>
+            <p style="color: var(--hc-muted); font-size: 14px; margin-bottom: 30px;">
+                Please supply accurate values below. All fields are required for an accurate risk index.
+            </p>
+
+            <form action="/" method="POST" id="heart-form">
+
+                <!-- SECTION 1: Medical History & Risk Factors -->
+                <div class="form-section-title">
+                    <i class="fa-solid fa-notes-medical"></i> 1. Medical History &amp; Risk Factors
+                </div>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="HighBP">High Blood Pressure <span class="label-tip">Ever diagnosed?</span></label>
+                        <select name="HighBP" id="HighBP" required>
+                            <option value="">Select...</option>
+                            <option value="0">No</option>
+                            <option value="1">Yes</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="HighChol">High Cholesterol <span class="label-tip">Ever diagnosed?</span></label>
+                        <select name="HighChol" id="HighChol" required>
+                            <option value="">Select...</option>
+                            <option value="0">No</option>
+                            <option value="1">Yes</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="CholCheck">Cholesterol Check <span class="label-tip">Past 5 years?</span></label>
+                        <select name="CholCheck" id="CholCheck" required>
+                            <option value="">Select...</option>
+                            <option value="0">No</option>
+                            <option value="1">Yes</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="BMI">Body Mass Index (BMI) <span class="label-tip">Weight(kg) / Height(m)²</span></label>
+                        <input type="number" name="BMI" id="BMI" step="0.1" min="10" max="60" placeholder="e.g., 25.3" required>
+                        <button type="button" class="bmi-btn" onclick="openBmiDialog()"><i class="fa-solid fa-calculator"></i> Calculate BMI</button>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="Smoker">Smoking Status <span class="label-tip">Current / past year?</span></label>
+                        <select name="Smoker" id="Smoker" required>
+                            <option value="">Select...</option>
+                            <option value="0">Non-smoker</option>
+                            <option value="1">Smoker</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="Stroke">Previous Stroke <span class="label-tip">Ever had a stroke?</span></label>
+                        <select name="Stroke" id="Stroke" required>
+                            <option value="">Select...</option>
+                            <option value="0">No</option>
+                            <option value="1">Yes</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group full-width">
+                        <label for="Diabetes">Diabetes Status <span class="label-tip">Current condition</span></label>
+                        <select name="Diabetes" id="Diabetes" required>
+                            <option value="">Select...</option>
+                            <option value="0">No</option>
+                            <option value="1">Pre-diabetes</option>
+                            <option value="2">Yes</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- BMI Calculator Dialog -->
+                <div id="bmi-dialog" class="bmi-dialog">
+                    <button class="close-btn" type="button" onclick="closeBmiDialog()">×</button>
+                    <h3><i class="fa-solid fa-calculator" style="color: var(--hc-teal); margin-right: 8px;"></i>Calculate Your BMI</h3>
+                    <div class="form-grid" style="margin-top: 12px;">
+                        <div class="form-group">
+                            <label for="bmi_height">Height <span class="label-tip">in centimeters</span></label>
+                            <input type="number" id="bmi_height" step="0.1" min="50" max="250" placeholder="e.g., 170">
+                        </div>
+                        <div class="form-group">
+                            <label for="bmi_weight">Weight <span class="label-tip">in kilograms</span></label>
+                            <input type="number" id="bmi_weight" step="0.1" min="20" max="300" placeholder="e.g., 70">
+                        </div>
+                    </div>
+                    <button type="button" class="calc-btn" onclick="calculateBmi()"><i class="fa-solid fa-check"></i> Apply BMI</button>
+                </div>
+
+                <!-- SECTION 2: Lifestyle & Physical Activity -->
+                <div class="form-section-title">
+                    <i class="fa-solid fa-heart-pulse"></i> 2. Lifestyle &amp; Physical Activity
+                </div>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="PhysActivity">Physical Activity <span class="label-tip">Past 30 days?</span></label>
+                        <select name="PhysActivity" id="PhysActivity" required>
+                            <option value="">Select...</option>
+                            <option value="0">No</option>
+                            <option value="1">Yes</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="Fruits">Daily Fruit Consumption <span class="label-tip">Servings per day</span></label>
+                        <select name="Fruits" id="Fruits" required>
+                            <option value="">Select...</option>
+                            <option value="0">Less than 1 time per day</option>
+                            <option value="1">1+ times per day</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="Veggies">Daily Vegetable Consumption <span class="label-tip">Servings per day</span></label>
+                        <select name="Veggies" id="Veggies" required>
+                            <option value="">Select...</option>
+                            <option value="0">Less than 1 time per day</option>
+                            <option value="1">1+ times per day</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="HvyAlcoholConsump">Heavy Alcohol Consumption <span class="label-tip">Exceeds weekly limit?</span></label>
+                        <select name="HvyAlcoholConsump" id="HvyAlcoholConsump" required>
+                            <option value="">Select...</option>
+                            <option value="0">No</option>
+                            <option value="1">Yes</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- SECTION 3: Healthcare Access & Health Status -->
+                <div class="form-section-title">
+                    <i class="fa-solid fa-hospital-user"></i> 3. Healthcare Access &amp; Health Status
+                </div>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="AnyHealthcare">Healthcare Coverage <span class="label-tip">Any insurance / plan?</span></label>
+                        <select name="AnyHealthcare" id="AnyHealthcare" required>
+                            <option value="">Select...</option>
+                            <option value="0">No</option>
+                            <option value="1">Yes</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="NoDocbcCost">Could Not See Doctor Due to Cost <span class="label-tip">Past 12 months</span></label>
+                        <select name="NoDocbcCost" id="NoDocbcCost" required>
+                            <option value="">Select...</option>
+                            <option value="0">No</option>
+                            <option value="1">Yes</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="GenHlth">General Health <span class="label-tip">Self-reported wellness</span></label>
+                        <select name="GenHlth" id="GenHlth" required>
+                            <option value="">Select...</option>
+                            <option value="1">Excellent</option>
+                            <option value="2">Very Good</option>
+                            <option value="3">Good</option>
+                            <option value="4">Fair</option>
+                            <option value="5">Poor</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="MentHlth">Poor Mental Health Days <span class="label-tip">Past 30 days (0–30)</span></label>
+                        <input type="number" name="MentHlth" id="MentHlth" min="0" max="30" placeholder="Enter number of days (0-30)" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="PhysHlth">Poor Physical Health Days <span class="label-tip">Past 30 days (0–30)</span></label>
+                        <input type="number" name="PhysHlth" id="PhysHlth" min="0" max="30" placeholder="Enter number of days (0-30)" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="DiffWalk">Difficulty Walking / Climbing Stairs <span class="label-tip">Serious difficulty?</span></label>
+                        <select name="DiffWalk" id="DiffWalk" required>
+                            <option value="">Select...</option>
+                            <option value="0">No</option>
+                            <option value="1">Yes</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- SECTION 4: Demographics -->
+                <div class="form-section-title">
+                    <i class="fa-solid fa-user-check"></i> 4. Demographics
+                </div>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="Sex">Gender <span class="label-tip">Biological category</span></label>
+                        <select name="Sex" id="Sex" required>
+                            <option value="">Select...</option>
+                            <option value="0">Female</option>
+                            <option value="1">Male</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="Age">Age (Years) <span class="label-tip">Your current age</span></label>
+                        <input type="number" name="Age" id="Age" min="18" max="120" placeholder="Enter your age" required>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn-primary">
+                    <i class="fa-solid fa-brain"></i> Compute Risk Index
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- AI Features Details Section -->
+    <section class="ai-features-section" id="features">
+        <div class="container">
+            <h2 style="text-align: center; font-size: 30px; font-weight: 800; color:#FFFFFF; margin-bottom: 15px;">
+                Intelligent Medical <span style="background: linear-gradient(135deg, #00C9A7, #00FFCC); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">Diagnostics Overview</span>
+            </h2>
+            <p style="text-align: center; color: var(--hc-muted); max-width: 600px; margin: 0 auto 50px; font-size: 14px;">
+                HealthCart AI uses machine learning methodologies to assist you with early symptom evaluation and clinical risk assessment indicators.
+            </p>
+            <div class="ai-features-grid">
+                <!-- Card 1 -->
+                <div class="ai-card">
+                    <div class="ai-icon">
+                        <i class="fa-solid fa-shield-heart"></i>
+                    </div>
+                    <h3>91.89% Bagging Classifier</h3>
+                    <p>Ensemble Bagging Classifier using Random Forest Classifier (RFC) as a base learner, trained on a dataset of 380,000+ patient records for highly robust risk evaluation.</p>
+                </div>
+                <!-- Card 2 -->
+                <div class="ai-card">
+                    <div class="ai-icon">
+                        <i class="fa-solid fa-bolt"></i>
+                    </div>
+                    <h3>Sub-Second Inference</h3>
+                    <p>Features hyper-optimized server-side serialization utilizing custom pre-trained pipelines to return diagnostic indices in milliseconds.</p>
+                </div>
+                <!-- Card 3 -->
+                <div class="ai-card">
+                    <div class="ai-icon">
+                        <i class="fa-solid fa-lock"></i>
+                    </div>
+                    <h3>Secure & Private</h3>
+                    <p>All inputs are processed immediately in-memory on our servers without logging identifiable telemetry. Your privacy remains secure.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container footer-grid">
+            <div class="footer-col footer-about">
+                <a href="/" class="brand" style="margin-bottom: 15px;">
+                    HealthCart</span>
+                </a>
+                <p>HealthCart is an integrated digital diagnostics and pharmaceutical shopping destination. We couple advanced machine learning telemetry with quality pharmacy supplies.</p>
+                <div class="social-row">
+                    <a href="#" class="social-btn"><i class="fa-brands fa-facebook-f"></i></a>
+                    <a href="#" class="social-btn"><i class="fa-brands fa-twitter"></i></a>
+                    <a href="#" class="social-btn"><i class="fa-brands fa-instagram"></i></a>
+                    <a href="#" class="social-btn"><i class="fa-brands fa-linkedin-in"></i></a>
+                </div>
+            </div>
+            <div class="footer-col">
+                <h4 class="footer-heading">Services</h4>
+                <ul class="footer-links">
+                    <li><a href="#" class="footer-link">Risk Assessment</a></li>
+                    <li><a href="#" class="footer-link">Telehealth Consults</a></li>
+                    <li><a href="#" class="footer-link">Medication Plans</a></li>
+                    <li><a href="#" class="footer-link">AI Diagnostics</a></li>
+                </ul>
+            </div>
+            <div class="footer-col">
+                <h4 class="footer-heading">Company</h4>
+                <ul class="footer-links">
+                    <li><a href="#" class="footer-link">About HealthCart</a></li>
+                    <li><a href="#" class="footer-link">Research papers</a></li>
+                    <li><a href="#" class="footer-link">Privacy Policy</a></li>
+                    <li><a href="#" class="footer-link">Terms &amp; Conditions</a></li>
+                </ul>
+            </div>
+            <div class="footer-col">
+                <h4 class="footer-heading">Support</h4>
+                <ul class="footer-links">
+                    <li><a href="#" class="footer-link">Contact Desk</a></li>
+                    <li><a href="#" class="footer-link">Help Articles</a></li>
+                    <li><a href="#" class="footer-link">FAQs</a></li>
+                    <li><a href="#" class="footer-link">Report issues</a></li>
+                </ul>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <div class="container">
+                <p>&copy; 2026 HealthCart Inc. All Rights Reserved. Diagnostics provided are indicative algorithms and not doctor substitutes.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Interactive JS logic -->
+    <script>
+        // Sticky Navbar effect
+        window.addEventListener('scroll', function() {
+            const nav = document.getElementById('main-nav');
+            if (window.scrollY > 50) {
+                nav.classList.add('scrolled');
+            } else {
+                nav.classList.remove('scrolled');
+            }
+        });
+
+        // Redirect to result panel if is active
+        window.addEventListener('DOMContentLoaded', () => {
+            const results = document.getElementById('results-panel');
+            if (results) {
+                results.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
+        });
+
+        // BMI Dialog
+        function openBmiDialog() {
+            document.getElementById('bmi-dialog').classList.add('open');
+        }
+
+        function closeBmiDialog() {
+            document.getElementById('bmi-dialog').classList.remove('open');
+        }
+
+        function calculateBmi() {
+            const height = parseFloat(document.getElementById('bmi_height').value);
+            const weight = parseFloat(document.getElementById('bmi_weight').value);
+
+            if (isNaN(height) || height <= 0 || isNaN(weight) || weight <= 0) {
+                alert('Please enter valid height and weight values.');
+                return;
+            }
+
+            const heightM = height / 100;
+            const bmi = weight / (heightM * heightM);
+            document.getElementById('BMI').value = bmi.toFixed(1);
+            closeBmiDialog();
+        }
+    </script>
+</body>
+</html>
